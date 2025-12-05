@@ -17,29 +17,29 @@
 ## Analyzing Domain Controller Security Logs, can you confirm the UTC date & time when the Kerberoasting activity occurred?
 - To begin this investigation, we can leverage `Event ID 4769` which indicates `A Kerberos service ticket was requested` and  `TicketEncryptionType 0x17` which indicates the `RC4` encryption standard. 
 - Using this information I was able to find our log of interest: 
-  ![Campfire](images/Pasted%20image%2020251205014002.png)
+  ![1](images/Pasted%20image%2020251205014002.png)
 ## What is the Service Name that was targeted?
-  ![Campfire](images/Pasted%20image%2020251205014002.png)
+  ![1](images/Pasted%20image%2020251205014002.png)
 ## What is the IP Address of the workstation?
-  ![Campfire](Pasted%20image%2020251205014106.png)
+  ![3](images/Pasted%20image%2020251205014106.png)
 ## What is the name of the file used to Enumerate Active directory objects and possibly find Kerberoastable accounts in the network?
 - For this next part I shifted over to the `Powershell-Operational` event file and filtered for `Event ID 4104` to view the PowerShell Script blocks. 
 - Piggybacking off of the log of interest found earlier we can try to establish some sort of timeline by looking at logs that occurred close to our log of interest.
 - The first log after filtering we see `powershell -ep bypass` being ran. 
-  ![Campfire](Pasted%20image%2020251205012853.png)
+  ![4](images/Pasted%20image%2020251205012853.png)
 - Attackers bypass PowerShell script execution policies to run malicious scripts without restrictions. Basically it is saying ignore all execution policies for this session and run whatever I give you without warnings.
 - The following log displays `PowerView.ps1` being ran, which is an PowerShell designed for Active Directory enumeration.
-  ![Campfire](Pasted%20image%2020251205014429.png)
+  ![5](images/Pasted%20image%2020251205014429.png)
 ## When was this script executed? (UTC)
 - The answer to this question is within the same log.
-  ![Campfire](Pasted%20image%2020251205014629.png)
+  ![6](images/Pasted%20image%2020251205014629.png)
 ## What is the full path of the tool used to perform the actual kerberoasting attack?
 - To begin this section I parsed the prefetch files using the PEcmd Tool which exported everything into a CSV file, which I then opened in the Timeline Explorer tool to look for any executables of interest that executed around the timeline I have established this far. 
 - Poking around in Timeline Explorer using our timeline I found `Rubeus.exe`, which is a C# toolset designed for raw Kerberos interaction. 
-  ![Campfire](Pasted%20image%2020251205015752.png)
+  ![7](images/Pasted%20image%2020251205015752.png)
 ## When was the tool executed to dump credentials? (UTC)
 - Correlating with our earlier findings Rubeus was executed and one second later a Kerberos service ticket request was logged for the MSSQLService.
-  ![Campfire](Pasted%20image%2020251205020251.png)
+  ![8](images/Pasted%20image%2020251205020251.png)
 ## What can be done to combat Kerberoasting attacks?
 - Ensure strong password hygiene, especially for service accounts that have SPNs related to them.
 - Usage of AES encryption to encrypt Kerberos service tickets, since when AES encryption is used a stronger password hash is also used, making password cracking very difficult. 

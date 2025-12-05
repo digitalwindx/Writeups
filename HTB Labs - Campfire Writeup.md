@@ -17,7 +17,7 @@
 ## Analyzing Domain Controller Security Logs, can you confirm the UTC date & time when the Kerberoasting activity occurred?
 - To begin this investigation, we can leverage `Event ID 4769` which indicates `A Kerberos service ticket was requested` and  `TicketEncryptionType 0x17` which indicates the `RC4` encryption standard. 
 - Using this information I was able to find our log of interest: 
-  ![[Pasted image 20251205014002.png]]
+  ![PowerShell EP Bypass](images/Pasted%20image%2020251205012853.png)
 ## What is the Service Name that was targeted?
   ![[Pasted image 20251205014033.png]]
 ## What is the IP Address of the workstation?
